@@ -1,12 +1,10 @@
 import { connect } from 'react-redux';
 
-import { SEND_REQUEST } from 'store/post/types';
+import { sendRequest } from 'store/post/actions';
 
 import Post from './Post';
 
 const mapStateToProps = ({ post }) => ({ post });
-const mapDispatchToProps = (dispatch) => ({
-  loadPost: () => dispatch({ type: SEND_REQUEST }),
-});
+const mapDispatchToProps = { loadPost: sendRequest };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Post);
