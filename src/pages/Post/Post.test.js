@@ -1,8 +1,10 @@
-import { render, fireEvent, screen } from '@testing-library/react';
+import { shallow } from 'enzyme';
 
 import Post from './Post';
+import PostItem from 'components/PostItem';
+import Button from 'components/Button';
 
-describe('<Button />', () => {
+describe('<Post />', () => {
   const loadPost = jest.fn();
   const props = {
     post: {
@@ -13,48 +15,58 @@ describe('<Button />', () => {
     loadPost,
   };
 
+  let wrapper;
+
+  beforeEach(() => {
+    wrapper = shallow(<Post {...props} />);
+  });
+
   afterEach(() => {
     loadPost.mockClear();
   });
 
   it("should render button title as 'Load Post'", () => {
-    render(<Post {...props} />);
-
-    expect(screen.getByTestId('button').textContent).toEqual('Load Post');
+    expect(
+      wrapper.find(Button).dive().find('[data-testid="button"]').text(),
+    ).toEqual('Load Post');
   });
 
   it('should render empty message', () => {
-    render(<Post {...props} />);
-
-    expect(screen.getByTestId('post-empty-message').textContent).toEqual('No data');
+    expect(wrapper.find('[data-testid="post-empty-message"]').text()).toEqual(
+      'No data',
+    );
   });
 
   it("should render button title as 'Loading...'", () => {
-    render(
-      <Post post={{ ...props.post, loading: true }} loadPost={loadPost} />,
-    );
+    wrapper.setProps({ post: { ...props.post, loading: true } });
 
-    expect(screen.getByTestId('button').textContent).toEqual('Loading...');
+    expect(
+      wrapper.find(Button).dive().find('[data-testid="button"]').text(),
+    ).toEqual('Loading...');
   });
 
   it('should renders the post items', () => {
-    const data = [{
-      id: 1,
-      title: 'The Title',
-      body: 'The body',
-    }];
+    const data = [
+      {
+        id: 1,
+        title: 'The Title',
+        body: 'The body',
+      },
+    ];
 
-    render(
-      <Post post={{ ...props.post, data,  }} loadPost={loadPost} />,
-    );
+    wrapper.setProps({ post: { ...props.post, data } });
 
-    expect(screen.getByText(/The Title/i)).toBeInTheDocument();
+    expect(
+      wrapper.find(PostItem).dive().find({ children: 'The Title' }).length,
+    ).toEqual(1);
   });
 
   it('loadPost should be called', () => {
-    render(<Post {...props} />);
-
-    fireEvent.click(screen.getByTestId('button'));
+    wrapper
+      .find(Button)
+      .dive()
+      .find('[data-testid="button"]')
+      .simulate('click');
 
     expect(loadPost).toBeCalled();
   });
