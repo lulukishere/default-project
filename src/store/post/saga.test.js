@@ -1,9 +1,11 @@
 import { runSaga } from 'redux-saga';
+import { takeLatest } from 'redux-saga/effects';
 
-import { fetchPost } from './saga';
+import watchPost, { fetchPost } from './saga';
 import { requestSucceeded, requestFailed } from './actions';
+import { SEND_REQUEST } from './types';
 
-describe('post saga', () => {
+describe('fetchPost generator', () => {
   const post = {
     error: null,
     loading: false,
@@ -45,5 +47,17 @@ describe('post saga', () => {
     ).toPromise();
 
     expect(dispatched).toEqual([requestFailed(error)]);
+  });
+});
+
+describe('watchPost generator', () => {
+  const gen = watchPost();
+
+  it('should wait for a action triggered', () => {
+    expect(gen.next().value).toEqual(takeLatest(SEND_REQUEST, fetchPost));
+  });
+
+  it('should be done', () => {
+    expect(gen.next().done).toBeTruthy();
   });
 });
